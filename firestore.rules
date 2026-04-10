@@ -1,0 +1,145 @@
+// ===============================================================
+// Assumed Data Model
+// ===============================================================
+//
+// Collection: users
+// Document ID: {userId} (matches request.auth.uid)
+// Fields:
+//   - uid: string (required)
+//   - displayName: string
+//   - email: string (required)
+//   - photoURL: string
+//   - hapticFeedback: bool
+//   - keepScreenActive: bool
+//   - createdAt: timestamp
+//
+// Collection: users/{userId}/sessions
+// Document ID: {sessionId}
+// Fields:
+//   - uid: string (required, matches request.auth.uid)
+//   - mantraId: string (required)
+//   - mantraName: string
+//   - counts: number (required)
+//   - timestamp: timestamp (required)
+//
+// Collection: mantras
+// Document ID: {mantraId}
+// Fields:
+//   - name: string (required)
+//   - description: string
+//   - category: string (required)
+//   - icon: string
+//   - isCustom: bool
+//   - createdBy: string (UID)
+//
+// ===============================================================
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isDocOwner() {
+      return isAuthenticated() && request.auth.uid == resource.data.uid;
+    }
+
+    function uidUnchanged() {
+      return !('uid' in request.resource.data) || request.resource.data.uid == request.auth.uid;
+    }
+
+    function uidNotModified() {
+      return !('uid' in request.resource.data) || request.resource.data.uid == resource.data.uid;
+    }
+
+    function hasOnlyAllowedFields(fields) {
+      return request.resource.data.keys().hasOnly(fields);
+    }
+
+    function isValidEmail(email) {
+      return email is string && email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && 
+        (request.auth.token.email == "rudraksh1302singh@gmail.com" && request.auth.token.email_verified == true ||
+         (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'));
+    }
+
+    // ===============================================================
+    // Domain Validators
+    // ===============================================================
+
+    function isValidUser(data) {
+      return data.email is string && isValidEmail(data.email) &&
+             (!('displayName' in data) || (data.displayName is string && data.displayName.size() < 100)) &&
+             (!('photoURL' in data) || (data.photoURL is string && data.photoURL.size() < 500));
+    }
+
+    function isValidSession(data) {
+      return data.mantraId is string && data.mantraId.size() < 100 &&
+             data.counts is number && data.counts >= 0 &&
+             data.timestamp is timestamp;
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    match /users/{userId} {
+      // Users can only read their own profile (PII protection)
+      allow read: if isOwner(userId) || isAdmin();
+      
+      allow create: if isOwner(userId) && isValidUser(request.resource.data) && uidUnchanged();
+      allow update: if isOwner(userId) && isValidUser(request.resource.data) && uidNotModified();
+    }
+
+    match /users/{userId}/sessions/{sessionId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow create: if isOwner(userId) && isValidSession(request.resource.data) && uidUnchanged();
+      allow update: if isOwner(userId) && isValidSession(request.resource.data) && uidNotModified();
+      allow delete: if isOwner(userId) || isAdmin();
+    }
+
+    match /mantras/{mantraId} {
+      // Mantras are globally readable
+      allow read: if true;
+      
+      // Only authenticated users can create custom mantras
+      allow create: if isAuthenticated() && 
+                      request.resource.data.name is string && 
+                      request.resource.data.name.size() < 100 &&
+                      (!('createdBy' in request.resource.data) || request.resource.data.createdBy == request.auth.uid);
+      
+      // Only creator or admin can update/delete
+      allow update, delete: if isAdmin() || (isAuthenticated() && resource.data.createdBy == request.auth.uid);
+    }
+
+    match /global_pulse/{pulseId} {
+      // Readable by everyone to see the pulse
+      allow read: if true;
+      // Creatable by authenticated users
+      allow create: if isAuthenticated() && 
+                      request.resource.data.timestamp == request.time &&
+                      (!('userName' in request.resource.data) || (request.resource.data.userName is string && request.resource.data.userName.size() < 100));
+      // No updates or deletes
+      allow update, delete: if false;
+    }
+
+    // Default deny
+    match /{path=**} {
+      allow read, write: if false;
+    }
+  }
+}

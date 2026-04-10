@@ -1,0 +1,58 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;500;700;800&family=Manrope:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-headline: "Noto Serif", serif;
+  --font-body: "Manrope", sans-serif;
+  --font-label: "Manrope", sans-serif;
+
+  --color-primary: #400408;
+  --color-primary-container: #5d1a1b;
+  --color-on-primary: #ffffff;
+  --color-on-primary-container: #de7f7b;
+  
+  --color-secondary: #775a19;
+  --color-secondary-container: #fed488;
+  --color-on-secondary: #ffffff;
+  --color-on-secondary-container: #785a1a;
+
+  --color-tertiary: #6f5c24;
+  --color-tertiary-container: #c1a969;
+
+  --color-background: #fcf9f4;
+  --color-surface: #fcf9f4;
+  --color-surface-container-low: #f6f3ee;
+  --color-surface-container-high: #ebe8e3;
+  --color-surface-container-highest: #e5e2dd;
+  --color-surface-container-lowest: #ffffff;
+
+  --color-on-surface: #1c1c19;
+  --color-on-surface-variant: #544241;
+  --color-outline: #877271;
+  --color-outline-variant: #dac1bf;
+  
+  --color-error: #ba1a1a;
+}
+
+@layer base {
+  body {
+    @apply bg-surface text-on-surface font-body;
+  }
+}
+
+.active-mantra-shadow {
+  box-shadow: 0 20px 40px -15px rgba(93, 26, 27, 0.1);
+}
+
+.text-glow {
+  text-shadow: 0 0 40px rgba(254, 212, 136, 0.3);
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

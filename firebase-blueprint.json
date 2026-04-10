@@ -1,0 +1,75 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "User Profile",
+      "description": "Stores user preferences and basic information.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "Firebase Auth UID" },
+        "displayName": { "type": "string" },
+        "email": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "hapticFeedback": { "type": "boolean" },
+        "keepScreenActive": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email"]
+    },
+    "Mantra": {
+      "title": "Mantra",
+      "description": "A sacred sound or phrase.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "category": { "type": "string" },
+        "icon": { "type": "string" },
+        "isCustom": { "type": "boolean" },
+        "createdBy": { "type": "string", "description": "UID of the user who created it" }
+      },
+      "required": ["name", "category"]
+    },
+    "Session": {
+      "title": "Meditation Session",
+      "description": "A recorded japa session.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "User UID" },
+        "mantraId": { "type": "string" },
+        "mantraName": { "type": "string" },
+        "counts": { "type": "number" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "mantraId", "counts", "timestamp"]
+    },
+    "GlobalPulse": {
+      "title": "Global Pulse",
+      "description": "A record of a completed Mala by any user.",
+      "type": "object",
+      "properties": {
+        "userName": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["timestamp"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "User profile documents"
+    },
+    "/users/{userId}/sessions/{sessionId}": {
+      "schema": "Session",
+      "description": "User meditation sessions"
+    },
+    "/mantras/{mantraId}": {
+      "schema": "Mantra",
+      "description": "Global and custom mantras"
+    },
+    "/global_pulse/{pulseId}": {
+      "schema": "GlobalPulse",
+      "description": "Real-time global activity"
+    }
+  }
+}
