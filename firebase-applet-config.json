@@ -1,10 +1,10 @@
 {
-  "projectId": "theta-ocean-492406-m1",
-  "appId": "1:561395697510:web:73c714a19fa307877b2aa7",
-  "apiKey": "AIzaSyBIBuMmziEtom11NPrpnjQwRO846oXn4UQ",
-  "authDomain": "theta-ocean-492406-m1.firebaseapp.com",
-  "firestoreDatabaseId": "ai-studio-8d617526-2f1c-4bdb-8890-a3c77a1db0a3",
-  "storageBucket": "theta-ocean-492406-m1.firebasestorage.app",
-  "messagingSenderId": "561395697510",
+  "projectId": "YOUR_FIREBASE_PROJECT_ID",
+  "appId": "YOUR_FIREBASE_APP_ID",
+  "apiKey": "YOUR_FIREBASE_API_KEY",
+  "authDomain": "YOUR_FIREBASE_AUTH_DOMAIN",
+  "firestoreDatabaseId": "YOUR_FIRESTORE_DATABASE_ID",
+  "storageBucket": "YOUR_FIREBASE_STORAGE_BUCKET",
+  "messagingSenderId": "YOUR_MESSAGING_SENDER_ID",
   "measurementId": ""
 }
